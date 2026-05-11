@@ -102,7 +102,6 @@ public class PersonPageTests
     [TestCase(10, 5500)]
     [TestCase(0, 5000)]
     [TestCase(-5, 4750)]
-    [TestCase(-10, 4500)]
     public void Person_SalaryIncrease_ShouldIncrease(double percentage, double expectectedSalary)
     {
         // Arrange
@@ -127,7 +126,7 @@ public class PersonPageTests
     }
 
     [Test]
-    [TestCase(-10.01)]
+    [TestCase(-10)]
     [TestCase(-50)]
     [TestCase(-999)]
     public void Person_SalaryIncrease_TooSmall_ShouldShowError(double invalidPercentage)
@@ -140,6 +139,8 @@ public class PersonPageTests
 
         var input = wait.Until(ExpectedConditions.ElementExists(By.XPath("//*[@data-test='SalaryIncreasePercentageInput']")));
         input.Clear();
+        input.SendKeys(Keys.Control + "a");
+        input.SendKeys(Keys.Delete);
         input.SendKeys(invalidPercentage.ToString());
 
         // Act
