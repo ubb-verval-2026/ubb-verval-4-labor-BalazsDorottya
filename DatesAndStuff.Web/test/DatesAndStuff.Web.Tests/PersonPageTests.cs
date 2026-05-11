@@ -124,6 +124,43 @@ public class PersonPageTests
         var salaryAfterSubmission = double.Parse(salaryLabel.Text);
         salaryAfterSubmission.Should().BeApproximately(expectectedSalary, 0.001);
     }
+
+    [Test]
+    [TestCase(-10.01)]
+    [TestCase(-50)]
+    [TestCase(-999)]
+    public void Person_SalaryIncrease_TooSmall_ShouldShowError(double invalidPercentage)
+    {
+        // Arrange
+        driver.Navigate().GoToUrl(BaseURL);
+        driver.FindElement(By.XPath("//*[@data-test='PersonPageNavigation']")).Click();
+
+        var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
+
+        var input = wait.Until(ExpectedConditions.ElementExists(By.XPath("//*[@data-test='SalaryIncreasePercentageInput']")));
+        input.Clear();
+        input.SendKeys(invalidPercentage.ToString());
+
+        // Act
+        var submitButton = wait.Until(ExpectedConditions.ElementExists(By.XPath("//*[@data-test='SalaryIncreaseSubmitButton']")));
+        submitButton.Click();
+
+        // Assert
+        var summary = wait.Until(d =>
+        {
+            var element = d.FindElement(By.CssSelector(".validation-errors, .validation-message"));
+            return element.Displayed ? element : null;
+        });
+
+        var fieldError = wait.Until(d =>
+        {
+            var element = d.FindElement(By.ClassName("validation-message"));
+            return element.Displayed ? element : null;
+        });
+
+        summary.Should().NotBeNull();
+        fieldError.Should().NotBeNull();
+    }
     private bool IsElementPresent(By by)
     {
         try
